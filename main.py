@@ -1,24 +1,29 @@
 from flask import Flask, request, jsonify
-import requests
 
 app = Flask(__name__)
 
-@app.route('/')
+# This will store all chat memory in Python (for now)
+memory = []
+
+@app.route("/", methods=["GET"])
 def home():
-    return "🧠 Mindlens AI API is live!"
+    return "🧠 Mindlens Memory API is Live — it can remember what you say!"
 
-@app.route('/api/ask', methods=['POST'])
-def ask_ai():
+@app.route("/chat", methods=["POST"])
+def chat():
     data = request.get_json()
-    question = data.get("question", "")
+    user_message = data.get("message", "")
 
-    # Use Groq or OpenAI compatible API (free-tier logic)
-    response = f"AI Thought Process: Analyzing '{question}' deeply... here's a simple answer."
+    # Save what user said
+    memory.append(user_message)
+
+    # Create a reply that shows memory
+    reply = f"I remember {len(memory)} things so far. You said: '{user_message}'"
 
     return jsonify({
-        "question": question,
-        "answer": response
+        "reply": reply,
+        "memory": memory  # show everything remembered
     })
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    app.run()
